@@ -1,0 +1,49 @@
+name: 股票分析
+
+on:
+  workflow_dispatch:
+    inputs:
+      stock_code:
+        description: '股票代码'
+        required: true
+        default: '600938'
+      stock_date:
+        description: '分析日期'
+        required: false
+        default: '2026-03-06'
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          
+      - name: Install dependencies
+        run: |
+          pip install -e .
+          
+      - name: Run analysis
+        env:
+          DASHSCOPE_API_KEY: ${{ secrets.DASHSCOPE_API_KEY }}
+        run: |
+          python -c "
+from tradingagents.graph.trading_graph import TradingAgentsGraph
+from tradingagents.default_config import DEFAULT_CONFIG
+
+config = DEFAULT_CONFIG.copy()
+config['llm_provider'] = 'dashscope'
+config['deep_think_llm'] = 'qwen-plus'
+config['quick_think_llm'] = 'qwen-turbo'
+config['max_debate_rounds'] = 1
+config['online_tools'] = True
+
+ta = TradingAgentsGraph(debug=True, config=config)
+result, decision = ta.propagate('${{ github.event.inputs.stock_code }}', '${{ github.event.inputs.stock_date }}')
+print('=== 分析结果 ===')
+print(decision)
+"
