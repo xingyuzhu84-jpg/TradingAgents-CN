@@ -22,8 +22,8 @@ jobs:
           
       - name: Run analysis
         env:
-          DASHSCOPE_API_KEY: ${{ secrets.DASHSCOPE_API_KEY }}
+          DASHSCOPE_API_KEY: sk-sp-ae6f1b9f26654904a759ff3554d799d0
           MONGODB_ENABLED: 'false'
           REDIS_ENABLED: 'false'
         run: |
-          python -m cli.main analyze 600938 --date 2026-03-06
+          python -m cli.main analyze 600938 --stock_date 2026-03-06
