@@ -1,0 +1,29 @@
+name: 自动运行分析
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          
+      - name: Install dependencies
+        run: |
+          pip install -e .
+          
+      - name: Run analysis
+        env:
+          DASHSCOPE_API_KEY: ${{ secrets.DASHSCOPE_API_KEY }}
+          MONGODB_ENABLED: 'false'
+          REDIS_ENABLED: 'false'
+        run: |
+          python -m cli.main analyze 600938 --date 2026-03-06
