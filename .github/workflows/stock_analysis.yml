@@ -30,20 +30,7 @@ jobs:
       - name: Run analysis
         env:
           DASHSCOPE_API_KEY: ${{ secrets.DASHSCOPE_API_KEY }}
+          MONGODB_ENABLED: 'false'
+          REDIS_ENABLED: 'false'
         run: |
-          python -c "
-from tradingagents.graph.trading_graph import TradingAgentsGraph
-from tradingagents.default_config import DEFAULT_CONFIG
-
-config = DEFAULT_CONFIG.copy()
-config['llm_provider'] = 'dashscope'
-config['deep_think_llm'] = 'qwen-plus'
-config['quick_think_llm'] = 'qwen-turbo'
-config['max_debate_rounds'] = 1
-config['online_tools'] = True
-
-ta = TradingAgentsGraph(debug=True, config=config)
-result, decision = ta.propagate('${{ github.event.inputs.stock_code }}', '${{ github.event.inputs.stock_date }}')
-print('=== 分析结果 ===')
-print(decision)
-"
+          python -m cli.main analyze ${{ github.event.inputs.stock_code }} --date ${{ github.event.inputs.stock_date }}
